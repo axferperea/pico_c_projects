@@ -1,0 +1,35 @@
+# pico_c_projects
+
+Project structure:
+
+mi_proyecto/
+├── CMakeLists.txt             <-- Principal, configura el proyecto
+├── pico_sdk_import.cmake     <-- Importa el Pico SDK (puede venir del SDK o vía path)
+├── src/                      <-- Código fuente principal
+│   ├── main.c
+│   └── CMakeLists.txt        <-- Archivos fuente en src/
+├── include/                  <-- (Opcional) Headers personalizados
+│   └── funciones.h
+├── build/                    <-- Se crea al compilar (no lo incluyas manualmente)
+└── README.md                 <-- Documentación opcional
+
+
+
+
+How to compile:
+
+Normal:
+- Project Folder:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - make install (Deploy binary to Pico)
+
+Debug mode:
+- Project Folder:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - make
+  - make install (Deploy binary to Pico)
