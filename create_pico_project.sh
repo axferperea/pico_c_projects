@@ -1,61 +1,3 @@
-# pico_c_projects
-
-Project structure:
-
-mi_proyecto/
-├── CMakeLists.txt             <-- Principal, configura el proyecto
-├── pico_sdk_import.cmake     <-- Importa el Pico SDK (puede venir del SDK o vía path)
-├── src/                      <-- Código fuente principal
-│   ├── main.c
-│   └── CMakeLists.txt        <-- Archivos fuente en src/
-├── include/                  <-- (Opcional) Headers personalizados - NO SE CREA CON EL SCRIPT
-│   └── funciones.h
-├── build/                    <-- Se debe crear manualmente antes de compilar - NO SE CREA CON EL SCRIPT
-├── README.md                 <-- Documentación opcional - NO SE CREA CON EL SCRIPT
-├── .vscode/                  <-- Carpeta con archivos .json para poder trabajar con vscode 
-    ├── settings.json
-    └── c_cpp_properties.json
-    └── cmake-kits.json
-    └── extensions.json
-    └── launch.json
-    └── tasks.json
-
-
-How to compile:
-
-Normal:
-- Project Folder:
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make
-  - make install (Deploy binary to Pico)
-
-Debug mode:
-- Project Folder:
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Debug ..
-  - make
-  - make install (Deploy binary to Pico)
-
-
-
-
-###################################################################################################################################################################################################################################################################
-                                                                                       SCRIPT TOP CREATE A NEW PROJECT WITH THE STRUCTURE ABOVE
-###################################################################################################################################################################################################################################################################
-
-🚀 Cómo usarlo
-
-1. Guarda el script como create_pico_project.sh
-
-2. Dale permisos: chmod +x create_pico_project.sh
-
-3. Ejecutalo: ./create_pico_project.sh Blink5
-
-###################################################################################################################################################################################################################################################################
-
 #!/bin/bash
 
 # Uso: ./create_pico_project.sh NombreProyecto
@@ -411,7 +353,3 @@ cat > $PROJECT_NAME/.vscode/tasks.json <<EOF
 EOF
 
 echo "Proyecto $PROJECT_NAME creado con éxito ✅"
-
-
-#####################################################################################################################################################################################################################################################################
-

@@ -5,25 +5,25 @@
             "label": "Compile Project",
             "type": "process",
             "isBuildCommand": true,
-            "command": "${userHome}/.pico-sdk/ninja/v1.12.1/ninja",
-            "args": ["-C", "${workspaceFolder}/build"],
+            "command": "/.pico-sdk/ninja/v1.12.1/ninja",
+            "args": ["-C", "/build"],
             "group": "build",
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated"
             },
-            "problemMatcher": "$gcc",
+            "problemMatcher": "",
             "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1/ninja.exe"
+                "command": "/.pico-sdk/ninja/v1.12.1/ninja.exe"
             }
         },
         {
             "label": "Run Project",
             "type": "process",
-            "command": "${env:HOME}/.pico-sdk/picotool/2.0.0/picotool/picotool",
+            "command": "/.pico-sdk/picotool/2.0.0/picotool/picotool",
             "args": [
                 "load",
-                "${command:raspberry-pi-pico.launchTargetPath}",
+                "",
                 "-fx"
             ],
             "presentation": {
@@ -32,26 +32,26 @@
             },
             "problemMatcher": [],
             "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/picotool/2.0.0/picotool/picotool.exe"
+                "command": "/.pico-sdk/picotool/2.0.0/picotool/picotool.exe"
             }
         },
         {
             "label": "Flash",
             "type": "process",
-            "command": "${userHome}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
+            "command": "/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
             "args": [
                 "-s",
-                "${userHome}/.pico-sdk/openocd/0.12.0+dev/scripts",
+                "/.pico-sdk/openocd/0.12.0+dev/scripts",
                 "-f",
                 "interface/cmsis-dap.cfg",
                 "-f",
-                "target/${command:raspberry-pi-pico.getTarget}.cfg",
+                "target/.cfg",
                 "-c",
-                "adapter speed 5000; program \"${command:raspberry-pi-pico.launchTargetPath}\" verify reset exit"
+                "adapter speed 5000; program \"\" verify reset exit"
             ],
             "problemMatcher": [],
             "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
+                "command": "/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
             }
         }
     ]
