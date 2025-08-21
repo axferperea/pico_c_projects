@@ -1,8 +1,11 @@
 # pico_c_projects
 
+The followings structures and commands are for using with Linux PCs. THIS IS FOR STANDALONE TOOLCHAIN WITH DEBUGGING IN VSCODE
+
+
 Project structure:
 
-mi_proyecto/
+my_proyect/
 ├── CMakeLists.txt             <-- Principal, configura el proyecto
 ├── pico_sdk_import.cmake     <-- Importa el Pico SDK (puede venir del SDK o vía path)
 ├── src/                      <-- Código fuente principal
@@ -21,397 +24,94 @@ mi_proyecto/
     └── tasks.json
 
 
-How to compile:
+
+
+###################################################################################################################################################################################################################################################################
+                                                                                                     Edit ~/.bashrc
+###################################################################################################################################################################################################################################################################
+
+🚀 You need to do
+
+1. Edit your ~/.bashrc file, add the next line:
+
+export PICO_SDK_PATH=${HOME}/pico/pico-sdk
+export PICO_EXAMPLES_PATH=${HOME}/pico/pico-examples
+export PICO_EXTRAS_PATH=${HOME}/pico/pico-extras
+export PICO_PLAYGROUND_PATH=${HOME}/pico/pico-playground
+export PICO_SWD="DEBUGPROBE"
+export CMAKE_GENERATOR=Ninja
+
+2. Reload: source ~/.bashrc
+
+
+
+
+
+###################################################################################################################################################################################################################################################################
+                                                                                                    Files: flash.sh, pico2Debug.sh, picoDebug.sh, picoDeply.sh
+###################################################################################################################################################################################################################################################################
+
+🚀 How to use it
+
+1. create a bin folder in /home/your_user: home/your_user/bin
+
+2. Move files: flash.sh, pico2Debug.sh, picoDebug.sh, picoDeply.sh to bin folder 
+
+3. Edit your ~/.bashrc an add: export PATH="$HOME/bin:$PATH"
+
+
+
+
+
+###################################################################################################################################################################################################################################################################
+                                                                                                      Files: create_pico2_project.sh / create_pico2w_project.sh
+###################################################################################################################################################################################################################################################################
+
+🚀 How to use it
+
+1. Give permit: chmod +x create_pico2_project.sh / create_pico2w_project.sh
+
+2. Execute: ./create_pico2_project.sh project_2_temp / create_pico2w_project.sh project_2w_temp
+
+3. Move your project_2_temp folder wherever you want.
+
+4. Hack the world!
+
+
+
+
+
+###################################################################################################################################################################################################################################################################
+                                                                                                     Compile, Deploy, Debug and HACK THE WORLD
+###################################################################################################################################################################################################################################################################
+
+🚀 How to compile:
+
 
 Normal:
 - Project Folder:
   - mkdir build
   - cd build
   - cmake ..
-  - make
-  - make install (Deploy binary to Pico)
+  - ninja
+  - ninja flash (Deploy binary to Pico)
 
 Debug mode:
 - Project Folder:
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
-  - make
-  - make install (Deploy binary to Pico)
+  - ninja
+  - ninja flash (Deploy binary to Pico)
+  - pico2Debug.sh
+  - VSCode:
+        - Open the project folder on vscode
+        - go to debug
+        - select debug with OPENOCD
+        - Start debugging and select the pico option 
 
 
-
-
-###################################################################################################################################################################################################################################################################
-                                                                                       SCRIPT TOP CREATE A NEW PROJECT WITH THE STRUCTURE ABOVE
-###################################################################################################################################################################################################################################################################
-
-🚀 Cómo usarlo
-
-1. Guarda el script como create_pico_project.sh
-
-2. Dale permisos: chmod +x create_pico_project.sh
-
-3. Ejecutalo: ./create_pico_project.sh Blink5
-
-###################################################################################################################################################################################################################################################################
-
-#!/bin/bash
-
-# Uso: ./create_pico_project.sh NombreProyecto
-
-if [ -z "$1" ]; then
-  echo "Uso: $0 NombreProyecto"
-  exit 1
-fi
-
-PROJECT_NAME=$1
-
-# Crear estructura de carpetas
-mkdir -p $PROJECT_NAME/.vscode
-mkdir -p $PROJECT_NAME/src
-
-# Crear CMakeLists.txt principal vacío
-cat > $PROJECT_NAME/CMakeLists.txt <<EOF
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.1.1)
-set(toolchainVersion 14_2_Rel1)
-set(picotoolVersion 2.1.1)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-cmake_minimum_required(VERSION 3.12)
-
-# Change your executable name to something creative!
-set(NAME template) # <-- Name your project/executable here!
-set(PICO_BOARD pico2)
-set(PICO_PLATFORM rp2350)
 
 
 
-include("$ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake")
-
-# Gooey boilerplate
-project(template C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-# Initialize the SDK
-pico_sdk_init()
-
-add_subdirectory(src)
-
-#Set up files for the release packages
-install(CODE "execute_process(COMMAND $ENV{HOME}/bin/picoDeploy.sh ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.elf)")
-
-# Set up files for the release packages
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/src/${NAME}.uf2
-    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-set(CPACK_GENERATOR "ZIP" "TGZ")
-include(CPack)
-EOF
-
-# Crear CMakeLists.txt para src
-cat > $PROJECT_NAME/src/CMakeLists.txt <<EOF
-add_executable(${NAME}
-        template.c
-        )
-
-# Pull in our pico_stdlib which pulls in commonly used features
-target_link_libraries(${NAME} pico_stdlib pico_cyw43_arch_none)
-
-set_target_properties(${NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-# enable usb output, disable uart output
-pico_enable_stdio_usb(${NAME} 1)
-pico_enable_stdio_uart(${NAME} 1)
-
-# create map/bin/hex file etc.
-pico_add_extra_outputs(${NAME})
-EOF
-
-# Crear archivo fuente template.c
-cat > $PROJECT_NAME/src/template.c <<EOF
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-
-int main() {
-    stdio_init_all();
-
-    const uint LED = PICO_DEFAULT_LED_PIN;
-    gpio_init(LED);
-    gpio_set_dir(LED, GPIO_OUT);
-
-    while (true) {
-        gpio_put(LED, 1);
-        printf("LED ON\\n");
-        sleep_ms(500);
-
-        gpio_put(LED, 0);
-        printf("LED OFF\\n");
-        sleep_ms(500);
-    }
-}
-EOF
-
-# Crear settings básicos en .vscode
-cat > $PROJECT_NAME/.vscode/settings.json <<EOF
-{
-    "cmake.options.statusBarVisibility": "hidden",
-    "cmake.options.advanced": {
-        "build": {
-            "statusBarVisibility": "hidden"
-        },
-        "launch": {
-            "statusBarVisibility": "hidden"
-        },
-        "debug": {
-            "statusBarVisibility": "hidden"
-        }
-    },
-    "cmake.configureOnEdit": false,
-    "cmake.automaticReconfigure": false,
-    "cmake.configureOnOpen": false,
-    "cmake.generator": "Ninja",
-    "cmake.cmakePath": "${userHome}/.pico-sdk/cmake/v3.28.6/bin/cmake",
-    "C_Cpp.debugShortcut": false,
-    "terminal.integrated.env.windows": {
-        "PICO_SDK_PATH": "${env:USERPROFILE}/.pico-sdk/sdk/2.0.0",
-        "PICO_TOOLCHAIN_PATH": "${env:USERPROFILE}/.pico-sdk/toolchain/13_2_Rel1",
-        "Path": "${env:USERPROFILE}/.pico-sdk/toolchain/13_2_Rel1/bin;${env:USERPROFILE}/.pico-sdk/picotool/2.0.0/picotool;${env:USERPROFILE}/.pico-sdk/cmake/v3.28.6/bin;${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1;${env:PATH}"
-    },
-    "terminal.integrated.env.osx": {
-        "PICO_SDK_PATH": "${env:HOME}/.pico-sdk/sdk/2.0.0",
-        "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/13_2_Rel1",
-        "PATH": "${env:HOME}/.pico-sdk/toolchain/13_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.0.0/picotool:${env:HOME}/.pico-sdk/cmake/v3.28.6/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
-    },
-    "terminal.integrated.env.linux": {
-        "PICO_SDK_PATH": "${env:HOME}/.pico-sdk/sdk/2.0.0",
-        "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/13_2_Rel1",
-        "PATH": "${env:HOME}/.pico-sdk/toolchain/13_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.0.0/picotool:${env:HOME}/.pico-sdk/cmake/v3.28.6/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
-    },
-    "raspberry-pi-pico.cmakeAutoConfigure": false,
-    "raspberry-pi-pico.useCmakeTools": true,
-    "raspberry-pi-pico.cmakePath": "${HOME}/.pico-sdk/cmake/v3.28.6/bin/cmake",
-    "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
-    "raspberry-pi-pico.python3Path": "${HOME}/.pico-sdk/python/3.12.1/python.exe"
-}
-EOF
-
-# Crear launch.json en .vscode
-cat > $PROJECT_NAME/.vscode/launch.json <<EOF
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Pico Debug (Cortex-Debug)",
-            "cwd": "${userHome}/.pico-sdk/openocd/0.12.0+dev/scripts",
-            "executable": "${command:raspberry-pi-pico.launchTargetPath}",
-            "request": "launch",
-            "type": "cortex-debug",
-            "servertype": "openocd",
-            "serverpath": "${userHome}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
-            "gdbPath": "${command:raspberry-pi-pico.getGDBPath}",
-            "device": "${command:raspberry-pi-pico.getChipUppercase}",
-            "configFiles": [
-                "interface/cmsis-dap.cfg",
-                "target/${command:raspberry-pi-pico.getTarget}.cfg"
-            ],
-            "svdFile": "${userHome}/.pico-sdk/sdk/2.0.0/src/${command:raspberry-pi-pico.getChip}/hardware_regs/${command:raspberry-pi-pico.getChipUppercase}.svd",
-            "runToEntryPoint": "main",
-            // Fix for no_flash binaries, where monitor reset halt doesn't do what is expected
-            // Also works fine for flash binaries
-            "overrideLaunchCommands": [
-                "monitor reset init",
-                "load \"${command:raspberry-pi-pico.launchTargetPath}\""
-            ],
-            "openOCDLaunchCommands": [
-                "adapter speed 5000"
-            ]
-        },
-        {
-            "name": "Pico Debug (Cortex-Debug with external OpenOCD)",
-            "cwd": "${workspaceRoot}",
-            "executable": "${command:raspberry-pi-pico.launchTargetPath}",
-            "request": "launch",
-            "type": "cortex-debug",
-            "servertype": "external",
-            "gdbTarget": "localhost:3333",
-            "gdbPath": "${command:raspberry-pi-pico.getGDBPath}",
-            "device": "${command:raspberry-pi-pico.getChipUppercase}",
-            "svdFile": "${userHome}/.pico-sdk/sdk/2.0.0/src/${command:raspberry-pi-pico.getChip}/hardware_regs/${command:raspberry-pi-pico.getChipUppercase}.svd",
-            "runToEntryPoint": "main",
-            // Give restart the same functionality as runToEntryPoint - main
-            "postRestartCommands": [
-                "break main",
-                "continue"
-            ]
-        },
-        {
-            "name": "Pico Debug (C++ Debugger)",
-            "type": "cppdbg",
-            "request": "launch",
-            "cwd": "${workspaceRoot}",
-            "program": "${command:raspberry-pi-pico.launchTargetPath}",
-            "MIMode": "gdb",
-            "miDebuggerPath": "${command:raspberry-pi-pico.getGDBPath}",
-            "miDebuggerServerAddress": "localhost:3333",
-            "debugServerPath": "${userHome}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
-            "debugServerArgs": "-f interface/cmsis-dap.cfg -f target/${command:raspberry-pi-pico.getTarget}.cfg -c \"adapter speed 5000\"",
-            "serverStarted": "Listening on port .* for gdb connections",
-            "filterStderr": true,
-            "hardwareBreakpoints": {
-                "require": true,
-                "limit": 4
-            },
-            "preLaunchTask": "Flash",
-            "svdPath": "${userHome}/.pico-sdk/sdk/2.0.0/src/${command:raspberry-pi-pico.getChip}/hardware_regs/${command:raspberry-pi-pico.getChipUppercase}.svd"
-        },
-    ]
-}
-EOF
-
-
-# Crear c_cpp_properties.json en .vscode
-cat > $PROJECT_NAME/.vscode/c_cpp_properties.json <<EOF
-{
-    "configurations": [
-        {
-            "name": "Pico",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${userHome}/.pico-sdk/sdk/2.0.0/**"
-            ],
-            "forcedInclude": [
-                "${userHome}/.pico-sdk/sdk/2.0.0/src/common/pico_base_headers/include/pico.h",
-                "${workspaceFolder}/build/generated/pico_base/pico/config_autogen.h"
-            ],
-            "defines": [],
-            "compilerPath": "${userHome}/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-            "cStandard": "c17",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "linux-gcc-arm"
-        }
-    ],
-    "version": 4
-}
-EOF
-
-
-# Crear cmake-kits.json en .vscode
-cat > $PROJECT_NAME/.vscode/cmake-kits.json <<EOF
-[
-    {
-        "name": "Pico",
-        "compilers": {
-            "C": "${userHome}/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc",
-            "CXX": "${userHome}/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc"
-        },
-        "toolchainFile": "${env:HOME}/.pico-sdk/sdk/2.0.0/cmake/preload/toolchains/pico_arm_cortex_m0plus_gcc.cmake",
-        "environmentVariables": {
-            "PATH": "${command:raspberry-pi-pico.getEnvPath};${env:PATH}"
-        },
-        "cmakeSettings": {
-            "Python3_EXECUTABLE": "${command:raspberry-pi-pico.getPythonPath}"
-        }
-    }
-]
-EOF
-
-
-# Crear extensions.json en .vscode
-cat > $PROJECT_NAME/.vscode/extensions.json <<EOF
-{
-    "recommendations": [
-        "marus25.cortex-debug",
-        "ms-vscode.cpptools",
-        "ms-vscode.cpptools-extension-pack",
-        "ms-vscode.vscode-serial-monitor",
-        "raspberry-pi.raspberry-pi-pico",
-    ]
-}
-EOF
-
-
-# Crear tasks.json en .vscode
-cat > $PROJECT_NAME/.vscode/tasks.json <<EOF
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Compile Project",
-            "type": "process",
-            "isBuildCommand": true,
-            "command": "${userHome}/.pico-sdk/ninja/v1.12.1/ninja",
-            "args": ["-C", "${workspaceFolder}/build"],
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "problemMatcher": "$gcc",
-            "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1/ninja.exe"
-            }
-        },
-        {
-            "label": "Run Project",
-            "type": "process",
-            "command": "${env:HOME}/.pico-sdk/picotool/2.0.0/picotool/picotool",
-            "args": [
-                "load",
-                "${command:raspberry-pi-pico.launchTargetPath}",
-                "-fx"
-            ],
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/picotool/2.0.0/picotool/picotool.exe"
-            }
-        },
-        {
-            "label": "Flash",
-            "type": "process",
-            "command": "${userHome}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
-            "args": [
-                "-s",
-                "${userHome}/.pico-sdk/openocd/0.12.0+dev/scripts",
-                "-f",
-                "interface/cmsis-dap.cfg",
-                "-f",
-                "target/${command:raspberry-pi-pico.getTarget}.cfg",
-                "-c",
-                "adapter speed 5000; program \"${command:raspberry-pi-pico.launchTargetPath}\" verify reset exit"
-            ],
-            "problemMatcher": [],
-            "windows": {
-                "command": "${env:USERPROFILE}/.pico-sdk/openocd/0.12.0+dev/openocd.exe",
-            }
-        }
-    ]
-}
-EOF
-
-echo "Proyecto $PROJECT_NAME creado con éxito ✅"
-
-
-#####################################################################################################################################################################################################################################################################
-
+###################################################################################################################################################################################################################################################################
